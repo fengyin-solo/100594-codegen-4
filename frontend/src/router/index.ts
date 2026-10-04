@@ -19,11 +19,13 @@ const Fire = () => import('@/views/fire/index.vue')
 const Settlement = () => import('@/views/settlement/index.vue')
 const Contract = () => import('@/views/contract/index.vue')
 const Crew = () => import('@/views/crew/index.vue')
+const Handover = () => import('@/views/handover/index.vue')
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'dashboard', component: Dashboard },
+    { path: '/handover', name: 'handover', component: Handover },
     { path: '/station', name: 'station', component: Station },
     { path: '/array', name: 'array', component: Array },
     { path: '/inverter', name: 'inverter', component: Inverter },

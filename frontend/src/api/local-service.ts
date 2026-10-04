@@ -5,6 +5,18 @@ import type { ActionResult, EntryRow, ModuleMeta, OverviewResult, PageResult } f
 // 会写进数据的「往回走」动作：命中就把这条记录标成异常态，看板上能一眼看出来。
 const NEGATIVE_ACTIONS = ['撤销', '作废', '拒绝', '驳回', '停用', '忽略', '下线', '回滚']
 
+// 多数模块的终态就是状态表最后一位；告警有两个终态（已恢复、已转缺陷），在这里补登。
+const EXTRA_TERMINAL_STATUSES: Record<string, string[]> = {
+  alarm: ['已恢复'],
+}
+
+/** 是否终态：走到终态就算办结，未结条数、待处理统计都按这个口径。 */
+export function isTerminalStatus(key: string, status: string): boolean {
+  const meta = moduleMeta(key)
+  const last = meta.statuses[meta.statuses.length - 1]
+  return status === last || (EXTRA_TERMINAL_STATUSES[key] ?? []).includes(status)
+}
+
 export function moduleMeta(key: string): ModuleMeta {
   const meta = MODULE_BY_KEY.get(key)
   if (!meta) {
@@ -43,11 +55,10 @@ export function runAction(key: string, id: number, action: string): ActionResult
   if (current === target) {
     return { ok: false, message: `${meta.entity}已经是「${target}」，不用重复操作` }
   }
-  const lastStatus = meta.statuses[meta.statuses.length - 1]
   const updated: EntryRow = {
     ...rows[index],
     status: target,
-    pending: target !== lastStatus,
+    pending: !isTerminalStatus(key, target),
     abnormal: NEGATIVE_ACTIONS.some((verb) => action.startsWith(verb)),
   }
   const next = [...rows]
