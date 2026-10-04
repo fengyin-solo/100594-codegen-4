@@ -14,6 +14,11 @@
         <span class="stat-label">{{ card.label }}</span>
         <strong class="stat-value">{{ card.value }}</strong>
       </article>
+      <RouterLink to="/handover" class="stat-card stat-link">
+        <span class="stat-label">接班人待办（已签收未结）</span>
+        <strong class="stat-value">{{ todoCount }}</strong>
+        <span class="stat-link-hint">去交接班账本 →</span>
+      </RouterLink>
     </div>
     <table class="data-table">
       <thead>
@@ -35,19 +40,29 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
+import { listTodos } from '@/api/handover-service'
 import { loadOverview } from '@/api/local-service'
 import type { OverviewResult } from '@/data/types'
 
 const cards = ref<OverviewResult['cards']>([])
 const moduleRows = ref<OverviewResult['modules']>([])
+const todoCount = ref(0)
 
 function refresh() {
   const payload = loadOverview()
   cards.value = payload.cards
   moduleRows.value = payload.modules
+  todoCount.value = listTodos().length
 }
 
-onMounted(refresh)
+onMounted(() => {
+  refresh()
+  window.addEventListener('pv:entries-updated', refresh)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pv:entries-updated', refresh)
+})
 </script>

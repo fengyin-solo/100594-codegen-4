@@ -11,6 +11,8 @@
       </div>
     </header>
 
+    <HandoverStrip module-key="alarm" />
+
     <div class="stat-row">
       <article v-for="item in stats" :key="item.label" class="stat-card">
         <span class="stat-label">{{ item.label }}</span>
@@ -73,6 +75,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
+import HandoverStrip from '@/components/HandoverStrip.vue'
 import {
   downloadEntries,
   listEntries,

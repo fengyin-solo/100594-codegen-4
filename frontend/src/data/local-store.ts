@@ -45,6 +45,8 @@ export function saveRows(key: string, rows: EntryRow[]): void {
   cache = next
   if (typeof window !== 'undefined' && window.localStorage) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    // 业务记录有变化：交接账本里挂在该模块上的条数要重新对账。
+    window.dispatchEvent(new CustomEvent('pv:entries-updated', { detail: { key } }))
   }
 }
 
